@@ -22,13 +22,13 @@ makeMBOInfillCritEIcontrolExploration = function(se.threshold = 1e-6, controlExp
       y.min = min(y) # aktuelle minimum der bisherigen evaluierten punkte bestimmen
       d = y.min - p.mu - (controlExploration) # gap between actual y_min and the predicted mean of the new point, exploration parameter shrinks the gap -- geklaut: https://github.com/yanyachen/rBayesianOptimization/blob/ff949bc0a1c7dd3a8b79e704f74775c99638d56d/R/Utility.R#L27
       xcr = (d / p.se) #
-      xcr.prob = pnorm(xcr) # distribution
-      xcr.dens = dnorm(xcr) # density
+      xcr.prob = pnorm(xcr) 
+      xcr.dens = dnorm(xcr)
       ei = d * xcr.prob + p.se * xcr.dens # ei berechnen
       res = ifelse(p.se < se.threshold, 0, -ei)
       if (attributes) {
         res = setAttribute(res, "crit.components", data.frame(se = p$se, mean = p$response,
-                                                              controlExploration = controlExploration)) # wird in zeile 19&20 bestimmt. unser param beeinflusst dieses ergebniss nicht
+                                                              controlExploration = controlExploration))
       }
       return(res)
     },
