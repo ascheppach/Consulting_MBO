@@ -1,4 +1,4 @@
-We tryed to keep the order and structure of our final work:
+We tried to keep the order and structure of our final work:
 
 1_ First we analyze the provided Code of Lars and give a boxplot-curve to show how much the optimization improve over the initial data and how much improvement is achieved in each step/Iteration. We run the provided code 10 times to build the boxplot-curve.
 
