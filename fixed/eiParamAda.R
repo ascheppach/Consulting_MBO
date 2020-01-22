@@ -23,8 +23,8 @@ makeMBOInfillCritAdaEIctrlExploration = function(se.threshold = 1e-6, controlExp
       controlExploration = (1-progress) * controlExplorationStart + progress * controlExplorationEnd # geklaut: https://github.com/mlr-org/mlrMBO/blob/master/R/infill_crits.R
       d = y.min - p.mu - (controlExploration) # gap between actual y_min and the predicted mean of the new point -- geklaut: https://github.com/yanyachen/rBayesianOptimization/blob/ff949bc0a1c7dd3a8b79e704f74775c99638d56d/R/Utility.R#L27
       xcr = (d / p.se)
-      xcr.prob = pnorm(xcr) # prob
-      xcr.dens = dnorm(xcr) # density
+      xcr.prob = pnorm(xcr)
+      xcr.dens = dnorm(xcr)
       ei = d * xcr.prob + p.se * xcr.dens # ei berechnen
       res = ifelse(p.se < se.threshold, 0, -ei)
       if (attributes) {
