@@ -186,14 +186,14 @@ waitForJobs()
 getStatus()
 
 # initialize function reduce() - not working at the moment
-source("2InvestigateDifferentModelConfigurations/reduceResultsBoxplot.R")
+source("reduceResultsBoxplot.R")
 # store the results - be careful it might be a large object!
 results = reduceResultsDataTable(fun = reduce)
 
 # initialize function plotBoxplots() - not working at the moment
 # have a look to see the boxplot computet for a amount of initial design benchmark
 # plotAmountInitialDesign.jpeg
-source("2InvestigateDifferentModelConfigurations/plotBoxplots.R")
+source("plotBoxplots.R")
 plotBoxplots(results)
 
 

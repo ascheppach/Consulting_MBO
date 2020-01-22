@@ -1,7 +1,7 @@
 library(mlr)
 library(mlrMBO)
-source("done/eiParam.R")
-source("done/eiParamAda.R")
+source("fixed/eiParam.R")
+source("fixed/eiParamAda.R")
 ##################
 
 # we try to tune the hyperparameters of the BO with mbo
