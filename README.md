@@ -1,4 +1,4 @@
-So finally we uploaded some codes. We tryed to keep the order and structure of our final work:
+We tryed to keep the order and structure of our final work:
 
 1_ First we analyze the provided Code of Lars and give a boxplot-curve to show how much the optimization improve over the initial data and how much improvement is achieved in each step/Iteration. We run the provided code 10 times to build the boxplot-curve.
 2_ Then in the second part of our work we gonna make some BO Changes and analyze how this affect the mbo-optimization-process. To analyze the effect of InitialDesign for instance, we fixed the rest of the mbo process to its defaults, an try out different intialDesigns. To get an idea how the result is going to look like, check out our Boxplots 2_4 and 2_5.
