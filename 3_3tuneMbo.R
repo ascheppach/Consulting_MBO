@@ -13,14 +13,16 @@ source("fixed/eiParamAda.R")
 # we have no idea why this happens
 
 funTuning = function(x) {
-  df = as.list(x)
+  df2 = as.list(x)
   
-  # 1st level start
-  KmArgonNugget <- readRDS("fixed/KmArgonNugget.rds")
+  data_kapton <- read.csv("fixed/kapton_argon.csv", colClasses=c("NULL",NA,NA,NA,NA))
+  
+  # model from all data points
+  model = train(makeLearner("regr.randomForest"), makeRegrTask(data = data_kapton, target = "ratio"))
 
   funMBO = function(x) {
     df = as.data.frame(x)
-    return(getPredictionResponse(predict(KmArgonNugget, newdata = df)))
+    return(getPredictionResponse(predict(model, newdata = df)))
   }
 
   psMBO = makeParamSet(
@@ -39,25 +41,32 @@ funTuning = function(x) {
 
   ctrl = makeMBOControl(y.name = "ratio")
   
-  if (df$learner == "regr.km") {
-    lrn = makeLearner("regr.km", predict.type = "se", nugget.estim = TRUE, covtype = df$kmKernel, control = list(trace = TRUE))
+  if (df2$learner == "regr.km") {
+    lrn = makeLearner("regr.km", predict.type = "se", nugget.estim = TRUE, covtype = df2$kmKernel,
+                      control = list(trace = FALSE))
   }
   
-  if (df$learner == "regr.randomForest") {
-    lrn = makeLearner("regr.randomForest", predict.type = "se", ntree = df$ntree)
+  if (df2$learner == "regr.randomForest") {
+    lrn = makeLearner("regr.randomForest", predict.type = "se")
   }
     
-  if (df$infillCrit == "makeMBOInfillCritEI()") {
+  if (df2$infillCrit == "makeMBOInfillCritEI()") {
     ctrl = setMBOControlInfill(ctrl, crit = makeMBOInfillCritEI())
   }
     
-  if (df$infillCrit == "makeMBOInfillCritEIcontrolExploration()") {
-    ctrl = setMBOControlInfill(ctrl, crit = makeMBOInfillCritEIcontrolExploration(controlExploration = df$controlExploration))
+  if (df2$infillCrit == "makeMBOInfillCritEIcontrolExploration()") {
+    ctrl = setMBOControlInfill(ctrl, crit = makeMBOInfillCritEIcontrolExploration(
+      controlExploration = df2$controlExploration))
   }
 
-  if (df$infillCrit == "makeMBOInfillCritAdaEIctrlExploration()") {
-    ctrl = setMBOControlInfill(ctrl, crit = makeMBOInfillCritAdaEIctrlExploration(controlExplorationStart = df$startControlExploration,
-                                                                                  controlExplorationEnd = df$endControlExploration))
+  if (df2$infillCrit == "makeMBOInfillCritAdaEIctrlExploration()") {
+    ctrl = setMBOControlInfill(ctrl, crit = makeMBOInfillCritAdaEIctrlExploration(
+      controlExplorationStart = df2$startControlExploration,
+      controlExplorationEnd = df2$endControlExploration))
+  }
+  
+  if (df2$infillCrit == "makeMBOInfillCritAEI()") {
+    ctrl = setMBOControlInfill(ctrl, crit = makeMBOInfillCritAEI())
   }
   
   ctrl = setMBOControlTermination(ctrl, iters = 20)
@@ -78,12 +87,10 @@ psTune = makeParamSet(
   makeDiscreteParam("kmKernel", values = c("powexp","gauss","matern5_2", "matern3_2"),
                     requires = quote(learner == "regr.km")),
   
-  makeIntegerParam("ntree", lower = 200, upper = 500,
-                   requires = quote(learner == "regr.randomForest")), 
-  
   makeDiscreteParam("infillCrit", values = c("makeMBOInfillCritEI()",
                                              "makeMBOInfillCritEIcontrolExploration()",
-                                             "makeMBOInfillCritAdaEIctrlExploration()")),
+                                             "makeMBOInfillCritAdaEIctrlExploration()",
+                                             "makeMBOInfillCritAEI()")),
   
   makeNumericParam("controlExploration", lower = 0.008, upper = 0.015,
                    requires = quote(infillCrit == "makeMBOInfillCritEIcontrolExploration()")),
@@ -103,7 +110,7 @@ objfun = makeSingleObjectiveFunction(
   minimize = FALSE
 )
 
-ctrl = makeMBOControl(y.name = "best y")
+ctrl = makeMBOControl(y.name = "bestY")
 ctrl = setMBOControlInfill(ctrl)
 ctrl = setMBOControlTermination(ctrl, iters = 50)
 
