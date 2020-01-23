@@ -1,8 +1,7 @@
 library("batchtools")
 
-# to use this framework make sure you have the following files (we recommend to clone our repro)
+# to use this framework make sure you have the following files
 # KmArgonNugget.rds - to save some time, we fixed a learner (krigging ("km.regr") defaults + nugget.estim = TRUE)
-# as the krigging model interpolates we know that the maximum ratio is equal 5.499063
 # initialDesign.rds - fixed initial design which will be used for surrogate/infill criteria benchmark
 # eiParam.R - expected improvement with exploration parameter
 # eiParamAda.R - expected improvement with adaptive exploration parameter
@@ -213,4 +212,4 @@ submitJobs(failed)
 ######## load registry if you started a clean session
 loadRegistry(file.dir = "differentModelConfigurations",work.dir = NULL,
              conf.file = findConfFile(), make.default = TRUE, writeable = FALSE)
-########
+#######
