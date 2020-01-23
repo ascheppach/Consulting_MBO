@@ -6,7 +6,7 @@ source("fixed/eiParamAda.R")
 
 # we try to tune the hyperparameters of the BO with mbo
 # we have 2 mbo levels
-# 1st level mbo is the BO to find max ratio
+# 1st level mbo is the BO-Code provided by Lars (to find max ratio)
 # 2nd level mbo is the parameter tuning for the 1st level mbo
 # sadly we have a problem:
 # if the 1st level runs more than 20 iterations "R Session Aborted"
