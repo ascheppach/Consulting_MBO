@@ -10,7 +10,7 @@ source("fixed/eiParam.R")
 source("fixed/eiParamAda.R")
 
 
-data_kapton <- read.csv("provided/kapton_argon.csv", colClasses=c("NULL",NA,NA,NA,NA))
+data_kapton <- read.csv("fixed/kapton_argon.csv", colClasses=c("NULL",NA,NA,NA,NA))
 
 # model from all data points
 model = train(makeLearner("regr.randomForest"), makeRegrTask(data = data_kapton, target = "ratio"))
