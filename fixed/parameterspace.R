@@ -37,5 +37,5 @@ ps = makeParamSet(
                                                "improvedLHS",
                                                "optimumLHS",
                                                "randomData",
-                                               "radomParam"))
+                                               "radomParam"))  #generateRandomDesign(10,ps)
 )
