@@ -8,6 +8,9 @@ ps = makeParamSet(
                     requires = quote(Surrogate == "regr.km")),
   
   makeIntegerParam("nodesize", lower = 2, upper = 7,
+                   requires = quote(Surrogate == "regr.randomForest")),
+  
+  makeIntegerParam("mtry", lower = 1, upper = 3,
                    requires = quote(Surrogate == "regr.randomForest")), 
   
   makeDiscreteParam("InfillCrit", values = c("makeMBOInfillCritEI()",
