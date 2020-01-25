@@ -35,5 +35,7 @@ ps = makeParamSet(
                                                "randomLHS",
                                                "geneticLHS",
                                                "improvedLHS",
-                                               "optimumLHS"))
+                                               "optimumLHS",
+                                               "randomData",
+                                               "radomParam"))
 )
