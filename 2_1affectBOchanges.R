@@ -62,11 +62,16 @@ addProblem(name = "kaptonArgon",
 
 # the infill criterias benchmark
 mbofunCrits = function(instance, iters, crit, ...) {
+  
   ctrl = makeMBOControl(y.name = "ratio")
-  ctrl = setMBOControlInfill(ctrl, opt = "focussearch", opt.focussearch.maxit = 20,
-                             opt.focussearch.points = 5, crit)
+  
+  ctrl = setMBOControlInfill(ctrl, crit)
+  
   ctrl = setMBOControlTermination(ctrl, iters)
-  res = mbo(fun = instance[[1]], design = instance[[2]], control = ctrl, show.info = TRUE)
+  
+  res = mbo(fun = instance[[1]], design = instance[[2]], control = ctrl,
+            show.info = TRUE)
+  
 }
 
 addAlgorithm(name = "infillCriteria", fun = mbofunCrits, reg = reg)
@@ -74,12 +79,18 @@ addAlgorithm(name = "infillCriteria", fun = mbofunCrits, reg = reg)
 
 # the initial Design benchmark
 mbofunInitial = function(instance, iters, funDesign, ...) {
+  
   ctrl = makeMBOControl(y.name = "ratio")
-  ctrl = setMBOControlInfill(ctrl, opt = "focussearch", opt.focussearch.maxit = 20,
-                             opt.focussearch.points = 5, makeMBOInfillCritEI())
+  
+  ctrl = setMBOControlInfill(ctrl, makeMBOInfillCritEI())
+  
   ctrl = setMBOControlTermination(ctrl, iters)
-  design = generateDesign(n = 9, par.set = getParamSet(instance[[1]]), fun = funDesign)
+  
+  design = generateDesign(n = 9, par.set = getParamSet(instance[[1]]),
+                          fun = funDesign)
+  
   res = mbo(fun = instance[[1]], design, control = ctrl, show.info = TRUE)
+  
 }
 
 addAlgorithm(name = "initialDesign", fun = mbofunInitial, reg = reg)
@@ -87,11 +98,15 @@ addAlgorithm(name = "initialDesign", fun = mbofunInitial, reg = reg)
 
 # the surrogate benchmark
 mbofunSurrogate = function(instance, iters, surrogate, ...) {
+  
   ctrl = makeMBOControl(y.name = "ratio")
-  ctrl = setMBOControlInfill(ctrl, opt = "focussearch", opt.focussearch.maxit = 20,
-                             opt.focussearch.points = 5, makeMBOInfillCritEI())
+  
+  ctrl = setMBOControlInfill(ctrl, makeMBOInfillCritEI())
+  
   ctrl = setMBOControlTermination(ctrl, iters)
-  res = mbo(fun = instance[[1]], design = instance[[2]], learner = surrogate, control = ctrl, show.info = TRUE)
+  
+  res = mbo(fun = instance[[1]], design = instance[[2]],
+            learner = surrogate, control = ctrl, show.info = TRUE)
 }
 
 addAlgorithm(name = "surrogate", fun = mbofunSurrogate, reg = reg)
@@ -99,12 +114,18 @@ addAlgorithm(name = "surrogate", fun = mbofunSurrogate, reg = reg)
 
 # the amount of initial data benchmark
 mbofunAmount = function(instance, iters, amount, ...) {
+  
   ctrl = makeMBOControl(y.name = "ratio")
-  ctrl = setMBOControlInfill(ctrl, opt = "focussearch", opt.focussearch.maxit = 20,
-                             opt.focussearch.points = 5, makeMBOInfillCritEI())
+  
+  ctrl = setMBOControlInfill(ctrl, makeMBOInfillCritEI())
+  
   ctrl = setMBOControlTermination(ctrl, iters)
-  design = generateDesign(n = amount, par.set = getParamSet(instance[[1]]), fun = lhs::maximinLHS)
+  
+  design = generateDesign(n = amount, par.set = getParamSet(instance[[1]]),
+                          fun = lhs::maximinLHS)
+  
   res = mbo(fun = instance[[1]], design, control = ctrl, show.info = TRUE)
+  
 }
 
 addAlgorithm(name = "amountInitialData", fun = mbofunAmount, reg = reg)
@@ -128,9 +149,11 @@ algoDesign = list(
   infillCriteria = CJ(iters = c(iterations), 
                       crit = list(makeMBOInfillCritEI(),
                                   makeMBOInfillCritAEI(),
-                                  makeMBOInfillCritEIcontrolExploration(controlExploration = 0.01),
-                                  makeMBOInfillCritAdaEIctrlExploration(controlExplorationStart = 0.01,
-                                                                        controlExplorationEnd = 0.001),
+                                  makeMBOInfillCritEIcontrolExploration(
+                                    controlExploration = 0.01),
+                                  makeMBOInfillCritAdaEIctrlExploration(
+                                    controlExplorationStart = 0.01,
+                                    controlExplorationEnd = 0.001),
                                   makeMBOInfillCritCB()
                                   ),
                       sorted = FALSE),
@@ -147,12 +170,18 @@ algoDesign = list(
   
   surrogate = CJ(iters = c(iterations), 
                  crit = list(
-                   makeLearner("regr.km", predict.type = "se", covtype = "powexp", control = list(trace = FALSE)),
-                   makeLearner("regr.km", predict.type = "se", covtype = "gauss", control = list(trace = FALSE)),
-                   makeLearner("regr.km", predict.type = "se", covtype = "matern5_2", control = list(trace = FALSE)),
-                   makeLearner("regr.randomForest", predict.type = "se", nodesize = 1),
-                   makeLearner("regr.randomForest", predict.type = "se", nodesize = 5),
-                   makeLearner("regr.randomForest", predict.type = "se", mtry = 4)
+                   makeLearner("regr.km", predict.type = "se", covtype = "powexp",
+                               control = list(trace = FALSE)),
+                   makeLearner("regr.km", predict.type = "se", covtype = "gauss",
+                               control = list(trace = FALSE)),
+                   makeLearner("regr.km", predict.type = "se", covtype = "matern5_2",
+                               control = list(trace = FALSE)),
+                   makeLearner("regr.randomForest", predict.type = "se",
+                               nodesize = 1),
+                   makeLearner("regr.randomForest", predict.type = "se",
+                               nodesize = 5),
+                   makeLearner("regr.randomForest", predict.type = "se"
+                               , mtry = 4)
                             ),
                  sorted = FALSE),
   
