@@ -12,7 +12,7 @@ source("fixed/eiParamAda.R")
 ## execute
 KmArgonNugget <- readRDS("fixed/KmArgonNugget.rds")
 
-funn = function(x) {
+fun = function(x) {
   df = as.data.frame(x)
   return(getPredictionResponse(predict(KmArgonNugget, newdata = df)))
 }
@@ -23,7 +23,7 @@ ps = makeParamSet(
 )
 objfun = makeSingleObjectiveFunction(
   name = "Kapton",
-  fn = funn,
+  fn = fun,
   par.set = ps,
   has.simple.signature = FALSE,
   minimize = FALSE
@@ -36,57 +36,132 @@ ctrl = setMBOControlTermination(ctrl, iters = 50)
 
 ### 1. Define Parameterspace of Hyperparameters
 psTune = makeParamSet(
-  makeDiscreteParam("Surrogate", values = c("regr.km","regr.randomForest")),
-  makeDiscreteParam("Kernel", values = c("powexp","gauss","matern5_2", "matern3_2"), requires = quote(Surrogate == "regr.km")),
-  makeIntegerParam("ntree", lower = 200, upper = 400, requires = quote(Surrogate == "regr.randomForest")), ## mit noch kleiner also 2 versuchen, weil beim interpolieren dann noch genauer und besser weil ja nur initial.design als punkte!
-  makeDiscreteParam("InfillCrit", values = c("makeMBOInfillCritEI()","makeMBOInfillCritEIcontrolExploration()","makeMBOInfillCritAdaEIctrlExploration()")),  
-  makeNumericParam("ControlExploration", lower = 0.008, upper = 0.015, requires = quote(InfillCrit == "makeMBOInfillCritEIcontrolExploration()")),
-  makeNumericParam("startControlExploration", lower = 0.008, upper = 0.03, requires = quote(InfillCrit == "makeMBOInfillCritAdaEIctrlExploration()")),
-  makeNumericParam("endControlExploration", lower = 0.0008, upper = 0.002, requires = quote(InfillCrit == "makeMBOInfillCritAdaEIctrlExploration()"))
+  
+  makeDiscreteParam("Surrogate", values = c("regr.km","regr.randomForest")), #1
+  
+  makeDiscreteParam("Kernel", values = c("powexp","gauss","matern5_2", "matern3_2"), #2
+                    requires = quote(Surrogate == "regr.km")),
+  
+  makeIntegerParam("nodesize", lower = 2, upper = 7,
+                   requires = quote(Surrogate == "regr.randomForest")), #3
+  
+  makeIntegerParam("mtry", lower = 1, upper = 3,
+                   requires = quote(Surrogate == "regr.randomForest")), #4 
+  
+  makeDiscreteParam("InfillCrit", values = c("makeMBOInfillCritEI()",
+                                             "makeMBOInfillCritCB()",
+                                             "makeMBOInfillCritAEI()",
+                                             "makeMBOInfillCritAdaCB()",
+                                             "makeMBOInfillCritEIcontrolExploration()", 
+                                             "makeMBOInfillCritAdaEIctrlExploration()")), #5
+  
+  makeNumericParam("ControlExploration", lower = 0.008, upper = 0.015,
+                   requires = quote(InfillCrit == "makeMBOInfillCritEIcontrolExploration()")), #6
+  
+  makeNumericParam("startControlExploration", lower = 0.008, upper = 0.03,
+                   requires = quote(InfillCrit == "makeMBOInfillCritAdaEIctrlExploration()")), #7
+  
+  makeNumericParam("endControlExploration", lower = 0.0008, upper = 0.002,
+                   requires = quote(InfillCrit == "makeMBOInfillCritAdaEIctrlExploration()")), #8
+  
+  makeIntegerParam("amountInitialDesign", lower = 9, upper = 30), #9
+  
+  makeDiscreteParam("initialDesign", values = c("maximinLHS", #10
+                                                "randomLHS",
+                                                "geneticLHS",
+                                                "improvedLHS",
+                                                "optimumLHS",
+                                                "randomData",
+                                                "radomPs"))
 )
 
 ### 2. Define Number of Iterations/Experiments and choose the Experiments/Hyperparameters with Grid-Design
-Experiments_Grid = generateGridDesign(psTune, 3)  
+experimentsGrid = generateGridDesign(psTune, 1)  
 
 # some data transformation to get the right structure
-Experiments <- list(Experiments_Grid[1,]) 
-for (i in 2:7) {
-  Experiments <- rbind(Experiments, list(Experiments_Grid[i,]))
+experiments <- list(experimentsGrid[1,]) 
+for (i in 2:210) {
+  experiments <- rbind(experiments, list(experimentsGrid[i,]))
 }
 
 ### 3. Execute tuneRandom Algorithm
 
-n <- length(Experiments)
+n <- length(experiments)
 #list with saved experiment results
 TuneResult <- list()
 
 # Execute the entire mbo-process n times (n=number of experiments/iterations) and save the resuls in a list
-for (i in 1:n) {
+tuneGrid = function(experiments) {
   
-  if (Experiments[[i]][[1]] == "regr.km") {
-    lrn = makeLearner("regr.km", predict.type = "se", covtype = as.character(Experiments[[i]][[2]])) 
+  if (experiments[[1]] == "regr.km") {
+    lrn = makeLearner("regr.km", predict.type = "se", nugget.estim = TRUE,
+                      covtype = as.character(experiments[[2]]), control = list(trace = FALSE)) 
   }
   
-  if (Experiments[[i]][[1]] =="regr.randomForest") {
-    lrn = makeLearner("regr.randomForest", predict.type = "se", ntree = Experiments[[i]][[3]])
+  if (experiments[[1]] =="regr.randomForest") {
+    lrn = makeLearner("regr.randomForest", predict.type = "se",
+                      nodesize = experiments[[3]], mtry = experiments[[4]])
   }
   
-  if (Experiments[[i]][[4]] == "makeMBOInfillCritEI") {
-    ctrl = setMBOControlInfill(ctrl, opt = "focussearch", opt.focussearch.maxit = 20, opt.focussearch.points = 5, crit = makeMBOInfillCritEI())
+  if (experiments[[5]] == "makeMBOInfillCritEI()") {
+    ctrl = setMBOControlInfill(ctrl, crit = makeMBOInfillCritEI())
   }
   
-  if (Experiments[[i]][[4]] == "makeMBOInfillCritEIcontrolExploration") {
-    ctrl = setMBOControlInfill(ctrl, opt = "focussearch", opt.focussearch.maxit = 20, opt.focussearch.points = 5, crit = makeMBOInfillCritEIcontrolExploration(controlExploration = Experiments[[i]][[5]]))
+  if (experiments[[5]] == "makeMBOInfillCritCB()") {
+    ctrl = setMBOControlInfill(ctrl, crit = makeMBOInfillCritCB())
   }
   
-  if (Experiments[[i]][[4]] == "makeMBOInfillCritAdaEIctrlExploration") {
-    ctrl = setMBOControlInfill(ctrl, opt = "focussearch", opt.focussearch.maxit = 20, opt.focussearch.points = 5, crit = makeMBOInfillCritAdaEIctrlExploration(controlExplorationStart = Experiments[[i]][[6]], controlExplorationEnd = Experiments[[i]][[7]]))
+  if (experiments[[5]] == "makeMBOInfillCritAdaCB()") {
+    ctrl = setMBOControlInfill(ctrl, crit = makeMBOInfillCritAdaCB())
   }
   
-  des = generateDesign(n = 9, par.set = getParamSet(objfun), fun = lhs::maximinLHS)
+  if (experiments[[5]] == "makeMBOInfillCritAEI()") {
+    ctrl = setMBOControlInfill(ctrl, crit = makeMBOInfillCritAEI())
+  }
   
-  TuneResult[[i]] <- mbo(objfun, design = des , learner = lrn, control = ctrl) 
-}  
+  if (experiments[[5]] == "makeMBOInfillCritEIcontrolExploration()") {
+    ctrl = setMBOControlInfill(ctrl, crit = makeMBOInfillCritEIcontrolExploration(
+      controlExploration = experiments[[6]]))
+  }
+  
+  if (experiments[[5]] == "makeMBOInfillCritAdaEIctrlExploration()") {
+    ctrl = setMBOControlInfill(ctrl, crit = makeMBOInfillCritAdaEIctrlExploration(
+      controlExplorationStart = experiments[[7]], controlExplorationEnd = experiments[[8]]))
+  }
+  
+  if (experiments[[10]] == "maximinLHS") {
+    des = generateDesign(n = experiments[[9]], par.set = getParamSet(objfun), fun = lhs::maximinLHS)
+  }
+  
+  if (experiments[[10]] == "randomLHS") {
+    des = generateDesign(n = experiments[[9]], par.set = getParamSet(objfun), fun = lhs::randomLHS)
+  }
+  
+  if (experiments[[10]] == "geneticLHS") {
+    des = generateDesign(n = experiments[[9]], par.set = getParamSet(objfun), fun = lhs::geneticLHS)
+  }
+  
+  if (experiments[[10]] == "optimumLHS") {
+    des = generateDesign(n = experiments[[9]], par.set = getParamSet(objfun), fun = lhs::optimumLHS)
+  }
+  
+  if (experiments[[10]] == "improvedLHS") {
+    des = generateDesign(n = experiments[[9]], par.set = getParamSet(objfun), fun = lhs::improvedLHS)
+  }
+  
+  if (experiments[[10]] == "radomPs") {
+    des = generateRandomDesign(experiments[[9]], ps)
+  }
+  
+  if (experiments[[10]] == "randomData") {
+    des = data_kapton[sample(1:nrow(data_kapton), experiments[[9]]), 1:3]
+  }
+  
+  tuneResult <- mbo(objfun, design = des , learner = lrn, control = ctrl) 
+}
+
+tuneResult <- lapply(experiments, tuneGrid)
+
 
 
 ### 4. Order the Result and show the best configurations 

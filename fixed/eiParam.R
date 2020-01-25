@@ -26,10 +26,10 @@ makeMBOInfillCritEIcontrolExploration = function(se.threshold = 1e-6, controlExp
       xcr.dens = dnorm(xcr)
       ei = d * xcr.prob + p.se * xcr.dens # ei berechnen
       res = ifelse(p.se < se.threshold, 0, -ei)
-      if (attributes) {
-        res = setAttribute(res, "crit.components", data.frame(se = p$se, mean = p$response,
-                                                              controlExploration = controlExploration))
-      }
+      #if (attributes) {
+      #  res = setAttribute(res, "crit.components", data.frame(se = p$se, mean = p$response,
+      #                                                        controlExploration = controlExploration))
+      #}
       return(res)
     },
     name = "Expected improvement with exploration parameter",
