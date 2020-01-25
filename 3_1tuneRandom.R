@@ -9,14 +9,11 @@ library(tidyr)
 source("fixed/eiParam.R")
 source("fixed/eiParamAda.R")
 
-data = readRDS("fixed/KmArgonNugget.rds")
-
-model = train(makeLearner("regr.km", nugget.estim = TRUE, control = list(trace = FALSE)),
-              makeRegrTask(data = data, target = "ratio"))
+model2 = train(makeLearner("regr.randomForest"), makeRegrTask(data = data2, target = "ratio"))
 
 funn = function(x) {
   df = as.data.frame(x)
-  return(getPredictionResponse(predict(model, newdata = df)))
+  return(getPredictionResponse(predict(model2, newdata = df)))
 }
 ps = makeParamSet(
   makeIntegerParam("power", lower = 10, upper = 5555),
@@ -31,6 +28,7 @@ objfun = makeSingleObjectiveFunction(
   minimize = FALSE
 )
 ctrl = makeMBOControl(y.name = "ratio")
+
 ctrl = setMBOControlTermination(ctrl, iters = 50)
 
 
@@ -39,6 +37,7 @@ ctrl = setMBOControlTermination(ctrl, iters = 50)
 
 ### 1. Define Parameterspace of Hyperparameters
 psTune = makeParamSet(
+  
   makeDiscreteParam("Surrogate", values = c("regr.km","regr.randomForest")),
   
   makeDiscreteParam("Kernel", values = c("powexp","gauss","matern5_2", "matern3_2"),
@@ -64,7 +63,7 @@ psTune = makeParamSet(
 ### 2. Define Number of Iterations/Experiments and choose the Experiments/Hyperparameters 
 # with Random-Design
 
-Experiments = sampleValues(psTune,10)
+Experiments = sampleValues(psTune,50)
 
 ### 3. Execute tuneRandom Algorithm
 
