@@ -8,9 +8,8 @@ library(tidyr)
 
 source("fixed/eiParam.R")
 source("fixed/eiParamAda.R")
+
 data = readRDS("fixed/KmArgonNugget.rds")
-
-
 
 model = train(makeLearner("regr.km", nugget.estim = TRUE, control = list(trace = FALSE)),
               makeRegrTask(data = data, target = "ratio"))
@@ -79,7 +78,7 @@ tuneRandom = function(Experiments) {
   
   if (Experiments[[1]] == "regr.km") {
     lrn = makeLearner("regr.km", predict.type = "se", nugget.estim = TRUE,
-                      covtype = Experiments[[2]], ) 
+                      covtype = Experiments[[2]], control = list(trace = FALSE)) 
   }
   
   if (Experiments[[1]] =="regr.randomForest") {
@@ -111,12 +110,15 @@ tuneResult <- lapply(Experiments, tuneRandom)
 
 ### 4. Order the Result and show the best configurations 
 ratio <- array(0, c(length(tuneResult),1))
+
 for (i in 1:length(tuneResult)) {
   ratio[i,1] <- tuneResult[[i]]$y
 }
 
 configurations <- array(0, c(length(tuneResult),length(psTune$pars)))
+
 configurations <- as.data.frame(Experiments[[1]]) 
+
 for (i in 2:length(tuneResult)) {
   configurations <- rbind(configurations, as.data.frame(Experiments[[i]]))
 }
