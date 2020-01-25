@@ -172,16 +172,22 @@ algoDesign = list(
                  crit = list(
                    makeLearner("regr.km", predict.type = "se", covtype = "powexp",
                                control = list(trace = FALSE)),
+                   
                    makeLearner("regr.km", predict.type = "se", covtype = "gauss",
                                control = list(trace = FALSE)),
+                   
                    makeLearner("regr.km", predict.type = "se", covtype = "matern5_2",
                                control = list(trace = FALSE)),
+                   
                    makeLearner("regr.randomForest", predict.type = "se",
                                nodesize = 1),
+                   
                    makeLearner("regr.randomForest", predict.type = "se",
                                nodesize = 5),
-                   makeLearner("regr.randomForest", predict.type = "se"
-                               , mtry = 4)
+                   
+                   makeLearner("regr.randomForest", predict.type = "se",
+                               mtry = 4)
+                   
                             ),
                  sorted = FALSE),
   

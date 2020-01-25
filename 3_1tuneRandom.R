@@ -9,11 +9,15 @@ library(tidyr)
 source("fixed/eiParam.R")
 source("fixed/eiParamAda.R")
 
-model2 = train(makeLearner("regr.randomForest"), makeRegrTask(data = data2, target = "ratio"))
 
-funn = function(x) {
+data_kapton <- read.csv("provided/kapton_argon.csv", colClasses=c("NULL",NA,NA,NA,NA))
+
+# model from all data points
+model = train(makeLearner("regr.randomForest"), makeRegrTask(data = data_kapton, target = "ratio"))
+
+fun = function(x) {
   df = as.data.frame(x)
-  return(getPredictionResponse(predict(model2, newdata = df)))
+  return(getPredictionResponse(predict(model, newdata = df)))
 }
 ps = makeParamSet(
   makeIntegerParam("power", lower = 10, upper = 5555),
@@ -22,7 +26,7 @@ ps = makeParamSet(
 )
 objfun = makeSingleObjectiveFunction(
   name = "Kapton",
-  fn = funn,
+  fn = fun,
   par.set = ps,
   has.simple.signature = FALSE,
   minimize = FALSE
@@ -38,73 +42,125 @@ ctrl = setMBOControlTermination(ctrl, iters = 50)
 ### 1. Define Parameterspace of Hyperparameters
 psTune = makeParamSet(
   
-  makeDiscreteParam("Surrogate", values = c("regr.km","regr.randomForest")),
+  makeDiscreteParam("Surrogate", values = c("regr.km","regr.randomForest")), #1
   
-  makeDiscreteParam("Kernel", values = c("powexp","gauss","matern5_2", "matern3_2"),
+  makeDiscreteParam("Kernel", values = c("powexp","gauss","matern5_2", "matern3_2"), #2
                     requires = quote(Surrogate == "regr.km")),
   
-  makeIntegerParam("ntree", lower = 200, upper = 500,
-                   requires = quote(Surrogate == "regr.randomForest")), 
+  makeIntegerParam("nodesize", lower = 2, upper = 7,
+                   requires = quote(Surrogate == "regr.randomForest")), #3
+  
+  makeIntegerParam("mtry", lower = 1, upper = 3,
+                   requires = quote(Surrogate == "regr.randomForest")), #4 
   
   makeDiscreteParam("InfillCrit", values = c("makeMBOInfillCritEI()",
-                                             "makeMBOInfillCritEIcontrolExploration()",
-                                             "makeMBOInfillCritAdaEIctrlExploration()")),
+                                             
+                                             "makeMBOInfillCritCB()",
+                                             "makeMBOInfillCritAEI()",
+                                             "makeMBOInfillCritAdaCB()",
+                                             "makeMBOInfillCritEIcontrolExploration()", 
+                                             "makeMBOInfillCritAdaEIctrlExploration()")), #5
   
   makeNumericParam("ControlExploration", lower = 0.008, upper = 0.015,
-                   requires = quote(InfillCrit == "makeMBOInfillCritEIcontrolExploration()")),
+                   requires = quote(InfillCrit == "makeMBOInfillCritEIcontrolExploration()")), #6
   
   makeNumericParam("startControlExploration", lower = 0.008, upper = 0.03,
-                   requires = quote(InfillCrit == "makeMBOInfillCritAdaEIctrlExploration()")),
+                   requires = quote(InfillCrit == "makeMBOInfillCritAdaEIctrlExploration()")), #7
   
   makeNumericParam("endControlExploration", lower = 0.0008, upper = 0.002,
-                   requires = quote(InfillCrit == "makeMBOInfillCritAdaEIctrlExploration()"))
+                   requires = quote(InfillCrit == "makeMBOInfillCritAdaEIctrlExploration()")), #8
+  
+  makeIntegerParam("amountInitialDesign", lower = 9, upper = 30), #9
+  
+  makeDiscreteParam("initialDesign", values = c("maximinLHS", #10
+                                                "randomLHS",
+                                                "geneticLHS",
+                                                "improvedLHS",
+                                                "optimumLHS",
+                                                "randomData",
+                                                "radomPs"))
 )
 
 ### 2. Define Number of Iterations/Experiments and choose the Experiments/Hyperparameters 
 # with Random-Design
 
-Experiments = sampleValues(psTune,50)
+experiments = sampleValues(psTune,50)
 
 ### 3. Execute tuneRandom Algorithm
 
-n <- length(Experiments)
+n <- length(experiments)
 
 
 # Execute the entire mbo-process n times (n=number of experiments/iterations) and save the 
 # resuls in a list named tuneResult
 
-tuneRandom = function(Experiments) {
+tuneRandom = function(experiments) {
   
-  if (Experiments[[1]] == "regr.km") {
+  if (experiments[[1]] == "regr.km") {
     lrn = makeLearner("regr.km", predict.type = "se", nugget.estim = TRUE,
-                      covtype = Experiments[[2]], control = list(trace = FALSE)) 
+                      covtype = experiments[[2]], control = list(trace = FALSE)) 
   }
   
-  if (Experiments[[1]] =="regr.randomForest") {
-    lrn = makeLearner("regr.randomForest", predict.type = "se", ntree = Experiments[[3]])
+  if (experiments[[1]] =="regr.randomForest") {
+    lrn = makeLearner("regr.randomForest", predict.type = "se",
+                      nodesize = experiments[[3]], mtry = experiments[[4]])
   }
   
-  if (Experiments[[4]] == "makeMBOInfillCritEI()") {
+  if (experiments[[5]] == "makeMBOInfillCritEI()") {
     ctrl = setMBOControlInfill(ctrl, crit = makeMBOInfillCritEI())
   }
   
-  if (Experiments[[4]] == "makeMBOInfillCritEIcontrolExploration()") {
+  if (experiments[[5]] == "makeMBOInfillCritCB()") {
+    ctrl = setMBOControlInfill(ctrl, crit = makeMBOInfillCritCB())
+  }
+  
+  if (experiments[[5]] == "makeMBOInfillCritAdaCB()") {
+    ctrl = setMBOControlInfill(ctrl, crit = makeMBOInfillCritAdaCB())
+  }
+  
+  if (experiments[[5]] == "makeMBOInfillCritAEI()") {
+    ctrl = setMBOControlInfill(ctrl, crit = makeMBOInfillCritAEI())
+  }
+  
+  if (experiments[[5]] == "makeMBOInfillCritEIcontrolExploration()") {
     ctrl = setMBOControlInfill(ctrl, crit = makeMBOInfillCritEIcontrolExploration(
-      controlExploration = Experiments[[5]]))
+      controlExploration = experiments[[6]]))
   }
   
-  if (Experiments[[4]] == "makeMBOInfillCritAdaEIctrlExploration()") {
+  if (experiments[[5]] == "makeMBOInfillCritAdaEIctrlExploration()") {
     ctrl = setMBOControlInfill(ctrl, crit = makeMBOInfillCritAdaEIctrlExploration(
-      controlExplorationStart = Experiments[[6]], controlExplorationEnd = Experiments[[7]]))
+      controlExplorationStart = experiments[[7]], controlExplorationEnd = experiments[[8]]))
   }
   
-  des = generateDesign(n = 9, par.set = getParamSet(objfun), fun = lhs::maximinLHS)
+  if (experiments[[10]] == "maximinLHS") {
+    des = generateDesign(n = experiments[[9]], par.set = getParamSet(objfun), fun = lhs::maximinLHS)
+  }
+  
+  if (experiments[[10]] == "randomLHS") {
+    des = generateDesign(n = experiments[[9]], par.set = getParamSet(objfun), fun = lhs::randomLHS)
+  }
+  
+  if (experiments[[10]] == "geneticLHS") {
+    des = generateDesign(n = experiments[[9]], par.set = getParamSet(objfun), fun = lhs::geneticLHS)
+  }
+  
+  if (experiments[[10]] == "optimumLHS") {
+    des = generateDesign(n = experiments[[9]], par.set = getParamSet(objfun), fun = lhs::optimumLHS)
+  }
+  
+  if (experiments[[10]] == "radomPs") {
+    des = generateRandomDesign(experiments[[9]], ps)
+  }
+  
+  if (experiments[[10]] == "randomData") {
+    des = data_kapton[sample(1:nrow(data_kapton), experiments[[9]]), 1:3]
+  }
   
   tuneResult <- mbo(objfun, design = des , learner = lrn, control = ctrl) 
 }
 
 
-tuneResult <- lapply(Experiments, tuneRandom)
+tuneResult <- lapply(experiments, tuneRandom)
 
 
 ### 4. Order the Result and show the best configurations 
