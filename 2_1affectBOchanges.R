@@ -132,7 +132,7 @@ algoDesign = list(
                                   makeMBOInfillCritAdaEIctrlExploration(controlExplorationStart = 0.01,
                                                                         controlExplorationEnd = 0.001),
                                   makeMBOInfillCritCB()
-                                 ),
+                                  ),
                       sorted = FALSE),
   
   initialDesign = CJ(iters = c(iterations), 
@@ -142,7 +142,7 @@ algoDesign = list(
                         geneticLHS,
                         improvedLHS,
                         optimumLHS
-                                     ),
+                        ),
                      sorted = FALSE),
   
   surrogate = CJ(iters = c(iterations), 
