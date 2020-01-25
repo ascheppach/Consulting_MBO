@@ -148,6 +148,10 @@ tuneRandom = function(experiments) {
     des = generateDesign(n = experiments[[9]], par.set = getParamSet(objfun), fun = lhs::optimumLHS)
   }
   
+  if (experiments[[10]] == "improvedLHS") {
+    des = generateDesign(n = experiments[[9]], par.set = getParamSet(objfun), fun = lhs::improvedLHS)
+  }
+  
   if (experiments[[10]] == "radomPs") {
     des = generateRandomDesign(experiments[[9]], ps)
   }
