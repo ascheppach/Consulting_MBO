@@ -142,11 +142,12 @@ source("fixed/eiParamAda.R")
 iterations = 50
 
 # algorithm design: the hyperparameters to benchmark
-# each benchmark has its own algorithm design aka CJ
+# each benchmark has its own algorithm design
+# use CJ for cross join and data.table for normal join
 # be careful: you should not benchmark more than 6 configurations the same time
 # the plot would get messy
 algoDesign = list(
-  infillCriteria = CJ(iters = c(iterations), 
+  infillCriteria = data.table(iters = c(iterations), 
                       crit = list(makeMBOInfillCritEI(),
                                   makeMBOInfillCritAEI(),
                                   makeMBOInfillCritEIcontrolExploration(
@@ -155,49 +156,40 @@ algoDesign = list(
                                     controlExplorationStart = 0.01,
                                     controlExplorationEnd = 0.001),
                                   makeMBOInfillCritCB()
-                                  ),
-                      sorted = FALSE),
+                                  )),
   
-  initialDesign = CJ(iters = c(iterations), 
+  initialDesign2 = data.table(iters = c(iterations), 
                      funDesign = list(
                         maximinLHS,
                         randomLHS,
                         geneticLHS,
                         improvedLHS,
                         optimumLHS
-                        ),
-                     sorted = FALSE),
+                        )),
   
-  surrogate = CJ(iters = c(iterations), 
+  surrogate = data.table(iters = c(iterations), 
                  crit = list(
                    makeLearner("regr.km", predict.type = "se", covtype = "powexp",
                                control = list(trace = FALSE)),
-                   
                    makeLearner("regr.km", predict.type = "se", covtype = "gauss",
                                control = list(trace = FALSE)),
-                   
                    makeLearner("regr.km", predict.type = "se", covtype = "matern5_2",
                                control = list(trace = FALSE)),
-                   
                    makeLearner("regr.randomForest", predict.type = "se",
                                nodesize = 1),
-                   
                    makeLearner("regr.randomForest", predict.type = "se",
                                nodesize = 5),
-                   
                    makeLearner("regr.randomForest", predict.type = "se",
                                mtry = 4)
-                   
-                            ),
-                 sorted = FALSE),
+                            )),
   
-  amountInitialData = CJ(iters = c(iterations),
+  amountInitialData = data.table(iters = c(iterations),
                          amount = c(10,
                                     15,
                                     20,
                                     25,
-                                    30),
-                         sorted = FALSE)
+                                    30
+                                    ))
 )
 
 
