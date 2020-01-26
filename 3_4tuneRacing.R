@@ -122,11 +122,11 @@ target.runner <- function(experiment, scenario) {
     ctrl = setMBOControlInfill(ctrl, crit = makeMBOInfillCritCB())
   }
   
-  if (as.factor(configuration[["infillCrit"]]) == "makeMBOInfillCritAEI()") {
+  if (as.factor(configuration[["infillCrit"]]) == "makeMBOInfillCritAEI") {
     ctrl = setMBOControlInfill(ctrl, crit = makeMBOInfillCritAEI())
   }
   
-  if (as.factor(configuration[["infillCrit"]]) == "makeMBOInfillCritAdaCB()") {
+  if (as.factor(configuration[["infillCrit"]]) == "makeMBOInfillCritAdaCB") {
     ctrl = setMBOControlInfill(ctrl, crit = makeMBOInfillCritAdaCB())
   }
   
