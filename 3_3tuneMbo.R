@@ -16,7 +16,7 @@ data_kapton <- read.csv("fixed/kapton_argon.csv", colClasses=c("NULL",NA,NA,NA,N
 
 # model from all data points
 model = train(makeLearner("regr.randomForest"), makeRegrTask(data = data_kapton, target = "ratio"))
-
+saveRDS(model, file = "RfArgon.rds")
 
 
 funTuning = function(x) {
