@@ -13,47 +13,21 @@ source("fixed/eiParamAda.R")
 ## execute
 data() <- readRDS("fixed/kapton_argon.csv")
 
-parameters = makeParamSet(
-  
-  makeDiscreteParam("surrogate", values = c("regr.km","regr.randomForest")),
-  
-  makeDiscreteParam("kernel", values = c("powexp","gauss","matern5_2", "matern3_2"),
-                    requires = quote(surrogate == "regr.km")),
-  
-  makeIntegerParam("nodesize", lower = 2, upper = 7,
-                   requires = quote(surrogate == "regr.randomForest")),
-  
-  makeIntegerParam("mtry", lower = 1, upper = 3,
-                   requires = quote(surrogate == "regr.randomForest")), 
-  
-  makeDiscreteParam("infillCrit", values = c("makeMBOInfillCritEI",
-                                             "makeMBOInfillCritEIcontrolExploration",
-                                             "makeMBOInfillCritAdaEIctrlExploration",
-                                             "makeMBOInfillCritCB",
-                                             "makeMBOInfillCritAEI",
-                                             "makeMBOInfillCritAdaCB")),
-  
-  makeNumericParam("controlExploration", lower = 0.008, upper = 0.015,
-                   requires = quote(infillCrit == "makeMBOInfillCritEIcontrolExploration")),
-  
-  makeNumericParam("startControlExploration", lower = 0.008, upper = 0.03,
-                   requires = quote(infillCrit == "makeMBOInfillCritAdaEIctrlExploration")),
-  
-  makeNumericParam("endControlExploration", lower = 0.0008, upper = 0.002,
-                   requires = quote(infillCrit == "makeMBOInfillCritAdaEIctrlExploration")),
-  
-  makeIntegerParam("amountInitialDesign", lower = 9, upper = 30),
-  
-  makeDiscreteParam("initialDesign", values = c("maximinLHS",
-                                                "randomLHS",
-                                                "geneticLHS",
-                                                "improvedLHS",
-                                                "optimumLHS",
-                                                #"randomData",
-                                                "radomParam"))
-)
+parameters.table <- '
+surrogate                                    "surrogate"                            c ("regr.km","regr.randomForest")             
+kernel                                        "kernel"                              c ("powexp","gauss","matern5_2", "matern3_2")                                                                                                                                                                     | surrogate == "regr.km"
+nodesize                                      "nodesize"                            i (2,7)                                                                                                                                                                                                           | surrogate == "regr.randomForest"
+mtry                                            "mtry"                              i (1,3)                                                                                                                                                                                                           | surrogate == "regr.randomForest"
+infillCrit                                     "infillCrit"                         c ("makeMBOInfillCritEI","makeMBOInfillCritEIcontrolExploration","makeMBOInfillCritAdaEIctrlExploration", "makeMBOInfillCritCB", "makeMBOInfillCritAEI","makeMBOInfillCritAdaCB")
+controlExploration                           "controlExploration"                   r (0.008,0.015)                                                                                                                                                                                                   | infillCrit == "makeMBOInfillCritEIcontrolExploration" 
+startControlExploration                      "startControlExploration"              r (0.008,0.03)                                                                                                                                                                                                    | infillCrit == "makeMBOInfillCritAdaEIctrlExploration" 
+endControlExploration                         "endControlExploration"               r (0.0008,0.002)                                                                                                                                                                                                  | infillCrit == "makeMBOInfillCritAdaEIctrlExploration" 
+amountInitialDesign                          "amountInitialDesign"                  i (9,30)
+initialDesign                                   "initialDesign"                     c ("maximinLHS","randomLHS","geneticLHS", "improvedLHS", "optimumLHS", "radomParam")
+'  
+parameters <- readParameters(text= parameters.table)
 
-parameters <- convertParamSetToIrace(parameters)
+
 
 
 ######## target runner ###### + ############ Instance ############
@@ -182,4 +156,22 @@ checkIraceScenario(scenario, parameters)
 printScenario(scenario)
 
 irace(scenario = scenario, parameters = parameters)
+
+
+parameters.table <- '
+surrogate                                    "surrogate"                            c ("regr.km","regr.randomForest")             
+kernel                                        "kernel"                              c ("powexp","gauss","matern5_2", "matern3_2")                                                                                                                                                                     | surrogate == "regr.km"
+nodesize                                      "nodesize"                            i (2,7)                                                                                                                                                                                                           | surrogate == "regr.randomForest"
+mtry                                            "mtry"                              i (1,3)                                                                                                                                                                                                           | surrogate == "regr.randomForest"
+infillCrit                                     "infillCrit"                         c ("makeMBOInfillCritEI","makeMBOInfillCritEIcontrolExploration","makeMBOInfillCritAdaEIctrlExploration", "makeMBOInfillCritCB", "makeMBOInfillCritAEI","makeMBOInfillCritAdaCB")
+controlExploration                           "controlExploration"                   r (0.008,0.015)                                                                                                                                                                                                   | infillCrit == "makeMBOInfillCritEIcontrolExploration" 
+startControlExploration                      "startControlExploration"              r (0.008,0.03)                                                                                                                                                                                                    | infillCrit == "makeMBOInfillCritAdaEIctrlExploration" 
+endControlExploration                         "endControlExploration"               r (0.0008,0.002)                                                                                                                                                                                                  | infillCrit == "makeMBOInfillCritAdaEIctrlExploration" 
+amountInitialDesign                          "amountInitialDesign"                  i (9,30)
+initialDesign                                   "initialDesign"                     c ("maximinLHS","randomLHS","geneticLHS", "improvedLHS", "optimumLHS", "radomParam")
+'  
+parameters <- readParameters(text= parameters.table)
+
+
+
 
