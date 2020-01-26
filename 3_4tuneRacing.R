@@ -67,7 +67,7 @@ target.runner <- function(experiment, scenario) {
   instance      <- experiment$instance
   instance <- data
   
-  model = train(makeLearner("regr.km", nugget.estim = TRUE, control = list(trace = FALSE)), makeRegrTask(data = instance, target = "ratio"))
+  model = train(makeLearner("regr.randomForest"), makeRegrTask(data = instance, target = "ratio"))
   
   fun = function(x) {
     df = as.data.frame(x)
@@ -173,7 +173,7 @@ target.runner <- function(experiment, scenario) {
 scenario                <- defaultScenario()
 scenario$seed           <- 132348834
 scenario$targetRunner   <- "target.runner" 
-scenario$maxExperiments <- 100 
+scenario$maxExperiments <- 25000 
 scenario$instances      <- data
 scenario$nbConfigurations <- 20
 
