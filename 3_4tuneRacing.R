@@ -83,13 +83,13 @@ target.runner <- function(experiment, scenario) {
   
   if (as.factor(configuration[["infillCrit"]]) == "makeMBOInfillCritEIcontrolExploration") {
     ctrl = setMBOControlInfill(ctrl, crit = makeMBOInfillCritEIcontrolExploration(
-      controlExploration = as.numeric(configuration[["CPEI"]])))
+      controlExploration = as.numeric(configuration[["controlExploration"]])))
   }
   
   if (as.factor(configuration[["infillCrit"]]) == "makeMBOInfillCritAdaEIctrlExploration") {
     ctrl = setMBOControlInfill(ctrl, crit = makeMBOInfillCritAdaEIctrlExploration(
-      controlExplorationStart = as.numeric(configuration[["adaStartCPEI"]]), 
-      controlExplorationEnd = as.numeric(configuration[["adaEndCPEI"]])))
+      controlExplorationStart = as.numeric(configuration[["startControlExploration"]]), 
+      controlExplorationEnd = as.numeric(configuration[["endControlExploration"]])))
   }
   
   if (as.factor(configuration[["infillCrit"]]) == "makeMBOInfillCritCB") {
@@ -111,27 +111,27 @@ target.runner <- function(experiment, scenario) {
   
   if (as.factor(configuration[["initialDesign"]]) == "randomLHS") {
     des = generateDesign(n = as.integer(as.integer(configuration[["amountInitialDesign"]])),
-                         par.set = getParamSet(instance), fun = lhs::randomLHS)
+                         par.set = getParamSet(objfun), fun = lhs::randomLHS)
   }
   
   if (as.factor(configuration[["initialDesign"]]) == "geneticLHS") {
     des = generateDesign(n = as.integer(as.integer(configuration[["amountInitialDesign"]])),
-                         par.set = getParamSet(instance), fun = lhs::geneticLHS)
+                         par.set = getParamSet(objfun), fun = lhs::geneticLHS)
   }
   
   if (as.factor(configuration[["initialDesign"]]) == "improvedLHS") {
     des = generateDesign(n = as.integer(as.integer(configuration[["amountInitialDesign"]])),
-                         par.set = getParamSet(instance), fun = lhs::improvedLHS)
+                         par.set = getParamSet(objfun), fun = lhs::improvedLHS)
   }
   
   if (as.factor(configuration[["initialDesign"]]) == "optimumLHS") {
     des = generateDesign(n = as.integer(as.integer(configuration[["amountInitialDesign"]])),
-                         par.set = getParamSet(instance), fun = lhs::optimumLHS)
+                         par.set = getParamSet(objfun), fun = lhs::optimumLHS)
   }
   
   if (as.factor(configuration[["initialDesign"]]) == "radomParam") {
     des = generateDesign(n = as.integer(as.integer(configuration[["amountInitialDesign"]])),
-                         par.set = getParamSet(instance), fun = lhs::radomParam)
+                         par.set = getParamSet(objfun), fun = lhs::radomParam)
   }
   
   res <- mbo(objfun, design = des , learner = lrn, control = ctrl) 
