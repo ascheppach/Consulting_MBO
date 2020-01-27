@@ -12,6 +12,7 @@ source("fixed/eiParamAda.R")
 
 ## execute
 data <- read.csv("fixed/kapton_argon.csv")
+data$X <- NULL
 
 parameters.table <- '
 surrogate                                    "surrogate"                            c ("regr.km","regr.randomForest")             
@@ -116,7 +117,7 @@ target.runner <- function(experiment, scenario) {
   }
   
   if (as.factor(configuration[["initialDesign"]]) == "geneticLHS") {
-    des = generateDesign(n = s.integer(configuration[["amountInitialDesign"]]),
+    des = generateDesign(n = as.integer(configuration[["amountInitialDesign"]]),
                          par.set = getParamSet(objfun), fun = lhs::geneticLHS)
   }
   
