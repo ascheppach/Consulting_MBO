@@ -69,7 +69,8 @@ target.runner <- function(experiment, scenario) {
   ctrl = setMBOControlTermination(ctrl, iters = 50)
   
   if (as.character(configuration[["surrogate"]]) == "regr.km") {
-    lrn = makeLearner("regr.km", predict.type = "se",
+    lrn = makeLearner("regr.km", predict.type = "se", nugget.estim = TRUE,
+                      control = list(trace = FALSE),
                       covtype = as.character(configuration[["kernel"]]))
   }
   
