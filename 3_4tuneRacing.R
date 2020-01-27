@@ -31,6 +31,7 @@ parameters <- readParameters(text= parameters.table)
 ##, "radomParam" raus aus paramspace
 
 
+
 ######## target runner #######
 ############ Instance ############
 target.runner <- function(experiment, scenario) {
@@ -109,7 +110,7 @@ target.runner <- function(experiment, scenario) {
   
   if (as.factor(configuration[["initialDesign"]]) == "maximinLHS") {
     des = generateDesign(n = as.integer(configuration[["amountInitialDesign"]]),
-                         par.set = getParamSet(instance), fun = lhs::maximinLHS)
+                         par.set = getParamSet(objfun), fun = lhs::maximinLHS)
   }
   
   if (as.factor(configuration[["initialDesign"]]) == "randomLHS") {
@@ -160,8 +161,4 @@ printScenario(scenario)
 
 irace(scenario = scenario, parameters = parameters)
 
-
-
-
-
-
+irace(scenario = scenario, parameters = parameters)
