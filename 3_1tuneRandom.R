@@ -5,6 +5,8 @@ library(mlr)
 library(mlrMBO)
 library(ggplot2)
 library(tidyr)
+library(parallel)
+library(data.table)
 
 source("fixed/eiParam.R")
 source("fixed/eiParamAda.R")
@@ -164,7 +166,7 @@ tuneRandom = function(experiments) {
 }
 
 
-tuneResult <- lapply(experiments, tuneRandom)
+tuneResult <- mclapply(experiments, tuneRandom, mc.cores = 16)
 
 
 ### 4. Order the Result and show the best configurations 

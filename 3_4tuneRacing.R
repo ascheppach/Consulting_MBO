@@ -11,7 +11,7 @@ source("fixed/eiParamAda.R")
 
 
 ## execute
-data() <- readRDS("fixed/kapton_argon.csv")
+data <- read.csv("fixed/kapton_argon.csv")
 
 parameters = makeParamSet(
   
@@ -56,7 +56,8 @@ parameters = makeParamSet(
 parameters <- convertParamSetToIrace(parameters)
 
 
-######## target runner ###### + ############ Instance ############
+######## target runner #######
+############ Instance ############
 target.runner <- function(experiment, scenario) {
   
   debugLevel    <- scenario$debugLevel
@@ -109,13 +110,13 @@ target.runner <- function(experiment, scenario) {
   
   if (as.factor(configuration[["infillCrit"]]) == "makeMBOInfillCritEIcontrolExploration") {
     ctrl = setMBOControlInfill(ctrl, crit = makeMBOInfillCritEIcontrolExploration(
-      controlExploration = as.numeric(configuration[["CPEI"]])))
+      controlExploration = as.numeric(configuration[["controlExploration"]])))
   }
   
   if (as.factor(configuration[["infillCrit"]]) == "makeMBOInfillCritAdaEIctrlExploration") {
     ctrl = setMBOControlInfill(ctrl, crit = makeMBOInfillCritAdaEIctrlExploration(
-      controlExplorationStart = as.numeric(configuration[["adaStartCPEI"]]), 
-      controlExplorationEnd = as.numeric(configuration[["adaEndCPEI"]])))
+      controlExplorationStart = as.numeric(configuration[["startControlExploration"]]), 
+      controlExplorationEnd = as.numeric(configuration[["endControlExploration"]])))
   }
   
   if (as.factor(configuration[["infillCrit"]]) == "makeMBOInfillCritCB") {
