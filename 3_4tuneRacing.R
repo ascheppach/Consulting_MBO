@@ -23,11 +23,11 @@ controlExploration                           "controlExploration"               
 startControlExploration                      "startControlExploration"              r (0.008,0.03)                                                                                                                                                                                                    | infillCrit == "makeMBOInfillCritAdaEIctrlExploration" 
 endControlExploration                         "endControlExploration"               r (0.0008,0.002)                                                                                                                                                                                                  | infillCrit == "makeMBOInfillCritAdaEIctrlExploration" 
 amountInitialDesign                          "amountInitialDesign"                  i (9,30)
-initialDesign                                   "initialDesign"                     c ("maximinLHS","randomLHS","geneticLHS", "improvedLHS", "optimumLHS", "radomParam")
+initialDesign                                   "initialDesign"                     c ("maximinLHS","randomLHS","geneticLHS", "improvedLHS", "optimumLHS")
 '  
 parameters <- readParameters(text= parameters.table)
 
-
+##, "radomParam" raus aus paramspace
 
 
 ######## target runner #######
@@ -106,34 +106,34 @@ target.runner <- function(experiment, scenario) {
   }
   
   if (as.factor(configuration[["initialDesign"]]) == "maximinLHS") {
-    des = generateDesign(n = as.integer(as.integer(configuration[["amountInitialDesign"]])),
+    des = generateDesign(n = as.integer(configuration[["amountInitialDesign"]]),
                          par.set = getParamSet(instance), fun = lhs::maximinLHS)
   }
   
   if (as.factor(configuration[["initialDesign"]]) == "randomLHS") {
-    des = generateDesign(n = as.integer(as.integer(configuration[["amountInitialDesign"]])),
+    des = generateDesign(n = as.integer(configuration[["amountInitialDesign"]]),
                          par.set = getParamSet(objfun), fun = lhs::randomLHS)
   }
   
   if (as.factor(configuration[["initialDesign"]]) == "geneticLHS") {
-    des = generateDesign(n = as.integer(as.integer(configuration[["amountInitialDesign"]])),
+    des = generateDesign(n = s.integer(configuration[["amountInitialDesign"]]),
                          par.set = getParamSet(objfun), fun = lhs::geneticLHS)
   }
   
   if (as.factor(configuration[["initialDesign"]]) == "improvedLHS") {
-    des = generateDesign(n = as.integer(as.integer(configuration[["amountInitialDesign"]])),
+    des = generateDesign(n = as.integer(configuration[["amountInitialDesign"]]),
                          par.set = getParamSet(objfun), fun = lhs::improvedLHS)
   }
   
   if (as.factor(configuration[["initialDesign"]]) == "optimumLHS") {
-    des = generateDesign(n = as.integer(as.integer(configuration[["amountInitialDesign"]])),
+    des = generateDesign(n = as.integer(configuration[["amountInitialDesign"]]),
                          par.set = getParamSet(objfun), fun = lhs::optimumLHS)
   }
   
-  if (as.factor(configuration[["initialDesign"]]) == "radomParam") {
-    des = generateDesign(n = as.integer(as.integer(configuration[["amountInitialDesign"]])),
-                         par.set = getParamSet(objfun), fun = lhs::radomParam)
-  }
+  #if (as.factor(configuration[["initialDesign"]]) == "radomParam") {
+  #  des = generateDesign(n = as.integer(configuration[["amountInitialDesign"]]),
+  #                       par.set = getParamSet(objfun), fun = lhs::radomParam)
+  #}
   
   res <- mbo(objfun, design = des , learner = lrn, control = ctrl) 
   
@@ -159,19 +159,6 @@ printScenario(scenario)
 irace(scenario = scenario, parameters = parameters)
 
 
-parameters.table <- '
-surrogate                                    "surrogate"                            c ("regr.km","regr.randomForest")             
-kernel                                        "kernel"                              c ("powexp","gauss","matern5_2", "matern3_2")                                                                                                                                                                     | surrogate == "regr.km"
-nodesize                                      "nodesize"                            i (2,7)                                                                                                                                                                                                           | surrogate == "regr.randomForest"
-mtry                                            "mtry"                              i (1,3)                                                                                                                                                                                                           | surrogate == "regr.randomForest"
-infillCrit                                     "infillCrit"                         c ("makeMBOInfillCritEI","makeMBOInfillCritEIcontrolExploration","makeMBOInfillCritAdaEIctrlExploration", "makeMBOInfillCritCB", "makeMBOInfillCritAEI","makeMBOInfillCritAdaCB")
-controlExploration                           "controlExploration"                   r (0.008,0.015)                                                                                                                                                                                                   | infillCrit == "makeMBOInfillCritEIcontrolExploration" 
-startControlExploration                      "startControlExploration"              r (0.008,0.03)                                                                                                                                                                                                    | infillCrit == "makeMBOInfillCritAdaEIctrlExploration" 
-endControlExploration                         "endControlExploration"               r (0.0008,0.002)                                                                                                                                                                                                  | infillCrit == "makeMBOInfillCritAdaEIctrlExploration" 
-amountInitialDesign                          "amountInitialDesign"                  i (9,30)
-initialDesign                                   "initialDesign"                     c ("maximinLHS","randomLHS","geneticLHS", "improvedLHS", "optimumLHS", "radomParam")
-'  
-parameters <- readParameters(text= parameters.table)
 
 
 
