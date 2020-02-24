@@ -1,0 +1,4 @@
+surrogate             kernel     nodesize  mtry       infillCrit        controlExploration  startControlExploration    endControlExploration   initialDesign     amountInitialDesign
+"regr.km"           "matern3_2"   NA       NA   "makeMBOInfillCritCB"          NA                   NA                         NA               "maximinLHS"          12 
+"regr.km"           "powexp"      NA       NA    "makeMBOInfillCritEI"          NA                  NA                         NA               "maximinLHS"          9 
+"regr.randomForest"  NA           2        3  "makeMBOInfillCritAdaEIctrlExploration" NA         0.029                       0.0019             "maximinLHS"          18   
