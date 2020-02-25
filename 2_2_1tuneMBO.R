@@ -25,7 +25,7 @@ infillCrit                                     "infillCrit"                     
 controlExploration                           "controlExploration"                   r (0.008,0.015)                                                                                                                                                                                                   | infillCrit == "makeMBOInfillCritEIcontrolExploration" 
 startControlExploration                      "startControlExploration"              r (0.008,0.03)                                                                                                                                                                                                    | infillCrit == "makeMBOInfillCritAdaEIctrlExploration" 
 endControlExploration                         "endControlExploration"               r (0.0008,0.002)                                                                                                                                                                                                  | infillCrit == "makeMBOInfillCritAdaEIctrlExploration" 
-amountInitialDesign                          "amountInitialDesign"                  i (9,30)
+amountInitialDesign                          "amountInitialDesign"                  i (9,20)
 initialDesign                                   "initialDesign"                     c ("maximinLHS","randomLHS","geneticLHS", "improvedLHS", "optimumLHS")
 '  
 parameters <- readParameters(text= parameters.table)
