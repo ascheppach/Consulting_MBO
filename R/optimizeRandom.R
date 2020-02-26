@@ -6,7 +6,7 @@ optimizeRandom = function(model, ps, n, minimize = FALSE) {
     response = getPredictionResponse(predict(model, newdata = df))
     return(response)
   }
-
+  
   tuneResult = lapply(experiments, tuneRandom)
   tuneResult = cbind(as.data.frame(do.call(rbind,tuneResult)), as.data.frame(do.call(rbind,experiments)))
   
