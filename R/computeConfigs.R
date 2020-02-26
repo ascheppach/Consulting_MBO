@@ -25,6 +25,7 @@ computeConfigs = function(probDesign, paramDesign, repls) {
     return(objfun)
   }
   
+  
   # @param name - name of the problem
   # @param data - fixed learner for the objective function
   # @param fun - objective function function
