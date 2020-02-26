@@ -4,13 +4,14 @@ source("R/optimizeCMAESR.R")
 source("R/optimizeMBO.R")
 
 
+#
 benchmarkOptimizations = function(model, ps, n, repls, paramsMBO, minimize) {
   x = 1:repls
   random = lapply(x, optimizeRandom, model = model, ps = ps,  minimize = minimize) ###### add all Hyperparameters !!!!
   cmaes = lapply(x, optimizeCMAES, model = model, ps = ps, n = n)    ######addd minimize to the 3 following functions !!!
   racing = lapply(x, optimizeRacing, model = model, ps = ps, n = n)                                 ####### automatise "ratio" in all of the optimizations!!
   mbo = optimizeMBO(objectiveFunction = model, parameterSet = ps, n = n, param = paramsMBO, repls = repls)
-
+  
   
   cmaes1 = NA
   for (i in 1:repls) {
