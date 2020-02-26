@@ -1,5 +1,5 @@
 optimizeCMAES = function(model, ps, n = 50, sigma = 1000, lambda = 400, minimize = FALSE) {
-
+  
   names = model[["features"]]
   
   nn = length(names)
@@ -15,14 +15,15 @@ optimizeCMAES = function(model, ps, n = 50, sigma = 1000, lambda = 400, minimize
       ps$pars[[i]]$type = "numeric"
     }
   }
-
+  
   if (minimize == FALSE) {
     p = (-1)
   }
   if (minimize == TRUE) {
     p = (1)
   }
-
+  
+  
   fun = function(x) {
     df = t(x)
     
@@ -34,11 +35,11 @@ optimizeCMAES = function(model, ps, n = 50, sigma = 1000, lambda = 400, minimize
     df = as.data.frame(df)
     
     colnames(df) = names[1:nn]
-
+    
     return(getPredictionResponse(predict(model, newdata = df))*p)
   }
   
-
+  
   objfun = makeSingleObjectiveFunction(
     name = "default",
     fn = fun,
@@ -46,7 +47,7 @@ optimizeCMAES = function(model, ps, n = 50, sigma = 1000, lambda = 400, minimize
     has.simple.signature = FALSE,
     minimize = FALSE
   )
-
+  
   iters = list(stopOnMaxIters(n))
   
   res = cmaes(
@@ -61,7 +62,7 @@ optimizeCMAES = function(model, ps, n = 50, sigma = 1000, lambda = 400, minimize
   
   y = as.data.frame(res[["best.fitness"]])
   x = as.data.frame(t(res[["best.param"]]))
-
+  
   for (i in 1:nn) {
     if (integer[i] == TRUE) {
       x[i] = round(x[i])
