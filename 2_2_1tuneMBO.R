@@ -25,6 +25,7 @@ infillCrit                                     "infillCrit"                     
 controlExploration                           "controlExploration"                   r (0.008,0.015)                                                                                                                                                                                                   | infillCrit == "makeMBOInfillCritEIcontrolExploration" 
 startControlExploration                      "startControlExploration"              r (0.008,0.03)                                                                                                                                                                                                    | infillCrit == "makeMBOInfillCritAdaEIctrlExploration" 
 endControlExploration                         "endControlExploration"               r (0.0008,0.002)                                                                                                                                                                                                  | infillCrit == "makeMBOInfillCritAdaEIctrlExploration" 
+lambda                                            "lambda"                          r (0.85,1.15)                                                                                                                                                                                                     | infillCrit == "makeMBOInfillCritAdaCB"
 amountInitialDesign                          "amountInitialDesign"                  i (9,20)
 initialDesign                                   "initialDesign"                     c ("maximinLHS","randomLHS","geneticLHS", "improvedLHS", "optimumLHS")
 '  
@@ -107,7 +108,7 @@ target.runner <- function(experiment, scenario) {
   }
   
   if (as.factor(configuration[["infillCrit"]]) == "makeMBOInfillCritAdaCB") {
-    ctrl = setMBOControlInfill(ctrl, crit = makeMBOInfillCritAdaCB())
+    ctrl = setMBOControlInfill(ctrl, crit = makeMBOInfillCritAdaCB(as.numeric(configuration[["lambda"]])))
   }
   
   if (as.factor(configuration[["initialDesign"]]) == "maximinLHS") {
@@ -159,7 +160,7 @@ scenario$targetRunner   <- "target.runner"
 scenario$maxExperiments <- 500 
 scenario$instances      <- data
 scenario$nbConfigurations <- 20
-scenario$testType <- "t-test"
+#scenario$testType <- "t-test"
 scenario$configurationsFile <- configurationsFile
 
 output <- irace(scenario = scenario, parameters = parameters)
