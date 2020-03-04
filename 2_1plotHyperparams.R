@@ -33,7 +33,7 @@ param = CJ(iters = 50,
                       55),
            sorted = FALSE)
 
-repls = 2
+repls = 35
 names = c("EiRf10","EiRf25","EiRf40","EiRf55")
 
 plotHyperparams(objectiveFunction, problemName, parameterSet, minimize, param, repls, names)
