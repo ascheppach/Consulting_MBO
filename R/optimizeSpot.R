@@ -79,3 +79,41 @@ res$xbest
 
 
 
+
+####### Mit neuer Fun ########
+model = train(makeLearner("regr.km", nugget.estim = TRUE, control = list(trace = FALSE)), makeRegrTask(data = data, target = "ratio"))
+fun = function(x) {
+  df = as.data.frame(x)
+  return(getPredictionResponse(predict(model, newdata = df)))
+}
+
+fun2 = function(xmat){
+  apply(xmat,1,fun)
+}
+#geht
+fun(data[46, 1:3])
+#geht nicht
+fun(c(1004, 10624	,660))
+
+
+# alternativ mit objfun
+ps = makeParamSet(
+  makeIntegerParam("power", lower = 10, upper = 5555),
+  makeIntegerParam("time", lower = 500, upper = 20210),
+  makeIntegerParam("pressure", lower = 0, upper = 1000)
+)
+
+
+objfun = makeSingleObjectiveFunction(
+  name = "Kapton",
+  fn = fun,
+  par.set = ps,
+  has.simple.signature = FALSE,
+  minimize = FALSE
+)
+
+objfun(c(1004, 10624	,660))
+
+
+
+
