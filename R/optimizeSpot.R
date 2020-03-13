@@ -36,24 +36,31 @@ fun = function(x) {
   predict(model, newdata = x)
 }
 
+
 # define optimizer / algo
-fun2 = function(x) {
+fun2 = function(xmat) {
+  xmat = as.data.frame(t(xmat))
+  colnames(xmat) <- c("nu", "mue")
   optimES(fun = fun, lower = c(10,500,0), upper = c(5555,20210,1000), 
-          control = list(funEvals = 50, mue = x))$ybest
+              control = list(funEvals = 50, nu = xmat$nu, mue = xmat$mue))$ybest
 }
 
-fun3 = function(xmat){
-  apply(xmat,1,fun2)
+fun3 = function(xmat) {
+  apply(xmat, 1, fun2)
 }
 
 # define metamodel and run spot
-res <- spot(fun = fun3, lower = c(5), upper = c(15)
+res <- spot(fun = fun3, lower = c(3,5), upper = c(5,15),
             control = list(funevals = 100))
 
 
 
-############## SPOT ##################
-##### Genoud-Optimizer
+res <- spot(fun = fun, lower = c(10,500,0), upper = c(5555,20210,1000))
+
+
+
+##### Genoud-Optimizer -> muss nicht optimiert werden, weil nur populationsize als parameter
+##### logischerweise ist er umso höher, je höher populationsize ist
 # define objective function / simulation
 model <- randomForest(data = data, x = data[,1:3], y = data$ratio)
 fun = function(x) {
@@ -83,17 +90,17 @@ res$xbest
 ####### Mit neuer Fun ########
 model = train(makeLearner("regr.km", nugget.estim = TRUE, control = list(trace = FALSE)), makeRegrTask(data = data, target = "ratio"))
 fun = function(x) {
-  df = as.data.frame(x)
+  df = as.data.frame(t(x))
+  colnames(df) <- c("power", "time", "pressure")
   return(getPredictionResponse(predict(model, newdata = df)))
 }
 
-fun2 = function(xmat){
-  apply(xmat,1,fun)
+
+
+fun = function(x) {
+  df = as.data.frame(x)
+  return(getPredictionResponse(predict(model, newdata = df)))
 }
-#geht
-fun(data[46, 1:3])
-#geht nicht
-fun(c(1004, 10624	,660))
 
 
 # alternativ mit objfun
@@ -112,8 +119,21 @@ objfun = makeSingleObjectiveFunction(
   minimize = FALSE
 )
 
-objfun(c(1004, 10624	,660))
+objfun(t(c(1004, 10624	,660)))
 
 
+objfun2 = function(df){
+  df = as.data.frame(t(x))
+  colnames(df) <- c("power", "time", "pressure")
+  return(getPredictionResponse(predict(objfun, newdata = df)))
+}
+
+
+objfun2(da1)
+
+da1 <- as.data.frame(c(1004, 10624	,660))
+
+da1 = as.data.frame(t(da1))
+colnames(da1) <- c("power", "time", "pressure")
 
 
