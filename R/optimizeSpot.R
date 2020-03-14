@@ -17,40 +17,18 @@ setwd("~/Documents/GitHub/Consulting_MBO")
 data <- read.csv("fixed/kapton_argon.csv")
 data$X <- NULL
 
-# data transformation
-n <- length(data$ratio)
-for (i in 1:n) {
-  data$ratio[i] <- data$ratio[i]*(-1)
-}
-
-
 set.seed(345)
-
 
 
                        ############## SPOT ##################
 # define and fix (-> for all optimzers the same) objective function / simulation 
 model = train(makeLearner("regr.randomForest", nodesize = 2), makeRegrTask(data = data, target = "ratio"))
-fun = function(x) {
-  df = as.data.frame(t(x))
-  colnames(df) <- c("power", "time", "pressure")
-  return(getPredictionResponse(predict(model, newdata = df)))
-}
 
 ps = makeParamSet(
   makeIntegerParam("power", lower = 10, upper = 5555),
   makeIntegerParam("time", lower = 500, upper = 20210),
   makeIntegerParam("pressure", lower = 0, upper = 1000)
 )
-
-objfun = makeSingleObjectiveFunction(
-  name = "Kapton",
-  fn = fun,
-  par.set = ps,
-  has.simple.signature = FALSE,
-  minimize = FALSE
-)
-
 
 
 ##### 1. ES-Optimizer
@@ -59,7 +37,35 @@ objfun = makeSingleObjectiveFunction(
 # objfun has to be defined
 # entweder ich mache nur für minimize und schreibe, mann muss es selber definieren, indem negative, oder ich mache es automatisiert, also innerhalb der funktion, wenn minimization=False dann zuerst ratio negativ machen und am ende wieder positiv
 
-optimizeES = function(objfun, ps, n, m) { #pass a defined objfun, n is iterations of optimizer, m is iteration of tuning
+
+
+optimizeES = function(objfun, ps, n, m, minimize = FALSE) { #pass a defined objfun, n is iterations of optimizer, m is iteration of tuning
+  
+  names = model[["features"]]
+  
+  nn = length(names)
+  
+  if (minimize == FALSE) {
+    p = (-1)
+  }
+  if (minimize == TRUE) {
+    p = (1)
+  }
+  
+  fun = function(x) {
+    df = as.data.frame(t(x))
+    colnames(df) = names[1:nn]
+    return(getPredictionResponse(predict(model, newdata = df))*p)
+  }
+  
+  objfun = makeSingleObjectiveFunction(
+    name = "Kapton",
+    fn = fun,
+    par.set = ps,
+    has.simple.signature = FALSE,
+    minimize = FALSE
+  )
+  
   
   # apply a wrapper function to the objfun; therefore fun3 receives matrix in the right structure
   fun2 = function(xmat1) {
@@ -82,7 +88,7 @@ optimizeES = function(objfun, ps, n, m) { #pass a defined objfun, n is iteration
   res <- spot(fun = fun4, lower = c(3,5), upper = c(5,15),
               control = list(funevals = m))
   
-  results <- list(besty = res$ybest, besthypparam = res$xbest, y = res$y, hypparam = res$x)
+  results <- list(besty = res$ybest*p, besthypparam = res$xbest, y = res$y*p, hypparam = res$x)
 }
 
 ### example run
