@@ -33,12 +33,6 @@ ps = makeParamSet(
 
 ##### 1. ES-Optimizer
 
-##automatisiert
-# objfun has to be defined
-# entweder ich mache nur für minimize und schreibe, mann muss es selber definieren, indem negative, oder ich mache es automatisiert, also innerhalb der funktion, wenn minimization=False dann zuerst ratio negativ machen und am ende wieder positiv
-
-
-
 optimizeES = function(objfun, ps, n, m, minimize = FALSE) { #pass a defined objfun, n is iterations of optimizer, m is iteration of tuning
   
   names = model[["features"]]
@@ -65,7 +59,6 @@ optimizeES = function(objfun, ps, n, m, minimize = FALSE) { #pass a defined objf
     has.simple.signature = FALSE,
     minimize = FALSE
   )
-  
   
   # apply a wrapper function to the objfun; therefore fun3 receives matrix in the right structure
   fun2 = function(xmat1) {
@@ -100,27 +93,6 @@ run[["hypparam"]]
 
 # show besty
 run[["besty"]]
-
-
-# define optimizer / algo
-fun3 = function(xmat) {
-  xmat = as.data.frame(t(xmat))
-  colnames(xmat) <- c("nu", "mue")
-  optimES(fun = fun2, lower = c(10,500,0), upper = c(5555,20210,1000), 
-              control = list(funEvals = 50, nu = xmat$nu, mue = xmat$mue))$ybest
-}
-
-fun4 = function(xmat2) {
-  apply(xmat2, 1, fun3)
-}
-
-# define metamodel and run spot
-res <- spot(fun = fun4, lower = c(3,5), upper = c(5,15),
-            control = list(funevals = 100))
-
-
-
-
 
 ##### 2. Genoud-Optimizer -> muss nicht optimiert werden, weil nur populationsize als parameter
 ##### logischerweise ist er umso höher, je höher populationsize ist
