@@ -82,10 +82,18 @@ optimizeES = function(objfun, ps, n, m) { #pass a defined objfun, n is iteration
   res <- spot(fun = fun4, lower = c(3,5), upper = c(5,15),
               control = list(funevals = m))
   
-  return(as.list(res$ybest))
+  results <- list(besty = res$ybest, besthypparam = res$xbest, y = res$y, hypparam = res$x)
 }
 
+### example run
+# run optimization and tuning
+run <- optimizeES(objfun, ps, 50, 100)
 
+# show hyperparameters
+run[["hypparam"]]
+
+# show besty
+run[["besty"]]
 
 
 # define optimizer / algo
