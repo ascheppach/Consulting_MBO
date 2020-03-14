@@ -28,11 +28,9 @@ set.seed(345)
 
 
 
-
-
                        ############## SPOT ##################
 # define and fix (-> for all optimzers the same) objective function / simulation 
-model = train(makeLearner("regr.randomForest"), makeRegrTask(data = data, target = "ratio"))
+model = train(makeLearner("regr.randomForest", nodesize = 2), makeRegrTask(data = data, target = "ratio"))
 fun = function(x) {
   df = as.data.frame(t(x))
   colnames(df) <- c("power", "time", "pressure")
@@ -53,13 +51,81 @@ objfun = makeSingleObjectiveFunction(
   minimize = FALSE
 )
 
-# wrapper function; fun3 receives matrix in the right structure
-fun2 = function(xmat1) {
-  apply(xmat1, 1, objfun)
-}
 
 
 ##### 1. ES-Optimizer
+
+##automatisiert
+# objfun has to be defined
+# entweder ich mache nur für minimize und schreibe, mann muss es selber definieren, indem negative, oder ich mache es automatisiert, also innerhalb der funktion, wenn minimization=False dann zuerst ratio negativ machen und am ende wieder positiv
+
+da1 <- optimizeES(objfun = objfun, n= 50, m=100)
+
+# lower
+ps1 <- ps[[1]][1]
+ps1[[1]][["lower"]]
+
+ps2 <- ps[[1]][2]
+ps2[[1]][["lower"]]
+
+ps3 <- ps[[1]][3]
+ps3[[1]][["lower"]]
+
+ps4 <- ps[[1]][4]
+ps4[[1]][["lower"]]
+
+ps5 <- ps[[5]][1]
+ps5[[1]][["lower"]]
+
+# upper
+ps1 <- ps[[1]][1]
+ps1[[1]][["upper"]]
+
+ps2 <- ps[[1]][2]
+ps2[[1]][["upper"]]
+
+ps3 <- ps[[1]][3]
+ps3[[1]][["upper"]]
+
+ps4 <- ps[[1]][4]
+ps4[[1]][["upper"]]
+
+ps5 <- ps[[5]][1]
+ps5[[1]][["upper"]]
+
+
+
+
+
+
+optimizeES = function(objfun, n, m) { #pass a defined objfun, n is iterations of optimizer, m is iteration of tuning
+  
+  # apply a wrapper function to the objfun; therefore fun3 receives matrix in the right structure
+  fun2 = function(xmat1) {
+    apply(xmat1, 1, objfun)
+  }
+  
+  # define optimizer / algo
+  fun3 = function(xmat) {
+    xmat = as.data.frame(t(xmat))
+    colnames(xmat) <- c("nu", "mue")
+    optimES(fun = fun2, lower = c(10,500,0), upper = c(5555,20210,1000), 
+            control = list(funEvals = n, nu = xmat$nu, mue = xmat$mue))$ybest
+  }
+  
+  fun4 = function(xmat2) {
+    apply(xmat2, 1, fun3)
+  }
+  
+  # define metamodel and run spot
+  res <- spot(fun = fun4, lower = c(3,5), upper = c(5,15),
+              control = list(funevals = m))
+  
+  return(as.list(res$x))
+}
+
+
+
 
 # define optimizer / algo
 fun3 = function(xmat) {
@@ -76,6 +142,7 @@ fun4 = function(xmat2) {
 # define metamodel and run spot
 res <- spot(fun = fun4, lower = c(3,5), upper = c(5,15),
             control = list(funevals = 100))
+
 
 
 
